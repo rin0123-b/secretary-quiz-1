@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>秘書検定準1級クイズ</title>
+<style>
+body{font-family:"Yu Gothic",sans-serif;background:linear-gradient(135deg,#ffd9ec,#d8f1ff);margin:0;padding:20px}
+.card{max-width:1000px;margin:auto;background:white;border-radius:30px;padding:30px;box-shadow:0 8px 25px #0002}
+h1{text-align:center;color:#ff78b7;font-size:42px;line-height:1.4}
+#quiz{font-size:30px;line-height:1.8}#quiz h3{font-size:34px}
+.choice{display:block;width:100%;padding:20px;margin:12px 0;border:0;border-radius:18px;background:#f5f0ff;font-size:26px;line-height:1.6;text-align:left;cursor:pointer;color:#222}
+.choice:disabled{opacity:.8}#result{font-size:34px;font-weight:bold;text-align:center;margin:16px 0}
+#explain{display:none;background:#f8f8ff;padding:18px;border-radius:14px;font-size:24px;line-height:1.8;overflow-wrap:anywhere}
+#correct-answer{font-weight:bold;color:#4b3b80}.action{padding:16px 24px;font-size:24px;border:0;border-radius:16px;cursor:pointer;margin:6px}
+#next{display:none;background:#ffb6d9;color:white}#restart{display:none;background:#bca7ff;color:white}.center{text-align:center;margin-top:15px}
+@media(max-width:600px){body{padding:10px}.card{padding:18px}h1{font-size:32px}#quiz{font-size:25px}#quiz h3{font-size:29px}.choice{font-size:22px;padding:16px}#result{font-size:29px}#explain{font-size:21px}.action{font-size:21px}}
+</style></head><body><div class="card"><h1>🐰 秘書検定準1級クイズ</h1><div id="quiz"></div><div id="result" aria-live="polite"></div><div id="explain"></div><div class="center"><button id="next" class="action">次の問題</button><button id="restart" class="action">もう一度チャレンジ</button></div></div>
+<script>
+const questions=[
+{type:"不適当なもの",q:"上司から取引先へのお礼状の下書きを渡されました。内容を確認すると、事実関係に誤りがある可能性に気付きました。秘書の対応として、不適当なものはどれですか。",c:["誤りと思われる箇所を確認してから清書する","上司に確認し、事実関係を再確認する","誤りの可能性を伝えた上で判断を仰ぐ","秘書の判断で内容を修正して清書する"],a:3,e:"秘書には主体性が求められますが、事実関係を独断で変更する権限はありません。誤りに気付いた場合は、該当箇所を整理して上司に確認し、必要に応じて修正案を提案します。最終的な内容は上司の判断を仰ぎます。"},
+{type:"最も適当なもの",q:"上司が出張中、重要取引先から面会依頼が入りました。帰社日程は確定していません。最も適当な対応はどれですか。",c:["帰社するまで待っていただく","面会は難しいと伝える","日程が未定であることを説明し、先方の希望を確認する","秘書の判断で面会日時を決定する"],a:2,e:"帰社日程が未定の段階で面会を一方的に断ったり、秘書の判断だけで日時を約束したりするのは適切ではありません。現状を正確に説明し、先方の希望日時や用件を確認して上司に報告し、調整につなげます。"},
+{type:"不適当なもの",q:"後輩秘書が取引先への連絡を忘れていたことが分かりました。指導係として不適当なものはどれですか。",c:["忘れた原因を一緒に確認する","再発防止策を考えさせる","相手への対応を優先する","本人に知らせず自分だけで処理する"],a:3,e:"まず取引先への連絡など必要な事後対応を優先します。その後、後輩と原因を確認し、記録方法や確認手順などの再発防止策を考えます。本人に知らせず処理すると、失敗から学ぶ機会を失い、再発のおそれがあります。"},
+{type:"最も適当なもの",q:"会議中の上司に『至急』と言われる電話が入りました。最も適当な対応はどれですか。",c:["直ちに会議室へ取り次ぐ","原則どおり取り次がない","用件と緊急性を確認した上で判断する","折り返しを依頼する"],a:2,e:"『至急』という言葉だけで判断せず、差し支えない範囲で相手の名前、用件、緊急である理由を確認します。会議を中断しても取り次ぐ必要があるか判断し、必要に応じて上司や関係者に確認します。"},
+{type:"不適当なもの",q:"上司のスピーチ原稿を清書する際の対応として、不適当なものはどれですか。",c:["読みづらい箇所を確認する","分量について相談する","修正案を提案する","内容を大幅に書き換えてから報告する"],a:3,e:"清書では原稿の内容や上司の意図を保ちながら整えます。読みづらい箇所や分量に問題があれば確認や修正案の提案はできますが、内容を大幅に書き換えてから報告するのは、上司の意図を損なう可能性があるため不適切です。"},
+{type:"最も適当なもの",q:"来客予定時刻の直前に上司から『10分ほど遅れる』と連絡がありました。最も適当な対応はどれですか。",c:["来客に事情を説明し意向を確認する","上司が来るまで説明しない","面談の中止を伝える","秘書が代わりに面談する"],a:0,e:"来客を待たせたままにせず、遅れることと見込み時間を丁寧に伝えておわびします。そのうえで、待っていただけるか、別の時間に変更するかなど相手の意向を確認します。"}
+];
+let current=0,score=0,answered=false;
+const quiz=document.getElementById("quiz"),result=document.getElementById("result"),explain=document.getElementById("explain"),next=document.getElementById("next"),restart=document.getElementById("restart");
+function showQuestion(){answered=false;const item=questions[current];quiz.innerHTML=`<h3>問題 ${current+1} / ${questions.length}</h3><p><b>${item.type}</b>を選びなさい。</p><p>${item.q}</p>`+item.c.map((choice,index)=>`<button class="choice" data-index="${index}">${String.fromCharCode(65+index)}. ${choice}</button>`).join("");quiz.querySelectorAll(".choice").forEach(button=>button.addEventListener("click",()=>answer(Number(button.dataset.index))));result.textContent="";explain.style.display="none";explain.innerHTML="";next.style.display="none";restart.style.display="none";}
+function answer(index){if(answered)return;answered=true;const item=questions[current],letter=String.fromCharCode(65+item.a);quiz.querySelectorAll(".choice").forEach(button=>button.disabled=true);result.textContent=index===item.a?"💮 正解！":"😢 残念！";if(index===item.a)score++;explain.innerHTML=`<div id="correct-answer">正解：${letter}. ${item.c[item.a]}</div><p><b>解説</b></p><p>${item.e}</p>`;explain.style.display="block";next.textContent=current===questions.length-1?"結果を見る":"次の問題";next.style.display="inline-block";}
+next.addEventListener("click",()=>{if(current<questions.length-1){current++;showQuestion();}else{quiz.innerHTML=`<h2>クイズ終了！</h2><p>全${questions.length}問中、${score}問正解です。</p><p>正答率：${Math.round(score/questions.length*100)}%</p>`;result.textContent=score===questions.length?"🎉 全問正解！":"おつかれさまでした！";explain.style.display="none";next.style.display="none";restart.style.display="inline-block";}});
+restart.addEventListener("click",()=>{current=0;score=0;showQuestion();});showQuestion();
+</script></body></html>
